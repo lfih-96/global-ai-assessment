@@ -91,20 +91,6 @@ Ejemplo de confirmación: POST /api/expedition/1/answers con JSON {"questionId":
 
 La interfaz espera hasta 12 segundos por petición, comunica errores y permite repetir el envío o recuperar el progreso. Volver a confirmar la décima pregunta no crea otro resultado. Los tres paisajes son SVG originales, las fuentes son locales y el audio se sintetiza localmente y no hay servicios externos. Radios nativos, formularios, foco visible, feedback textual y prefers-reduced-motion acompañan la interacción.
 
-## Demostración de tres minutos
-
-- **0:00–0:30:** login precargado y dashboard. Explica el diagnóstico A2 de diez retos y sus tres destinos.
-- **0:30–1:15:** contesta un reto correctamente y otro con error. Muestra explicación inmediata, bloqueo de la respuesta y sellos de progreso.
-- **1:15–1:35:** recarga: la última confirmación vuelve con su explicación. Continúa hacia los paisajes de lectura y vocabulario.
-- **1:35–2:30:** termina los diez retos. Explica porcentaje, aciertos, tres habilidades, fortaleza y siguiente práctica recomendada.
-- **2:30–3:00:** abre historial. Explica que SQLite persiste el recorrido y el servidor decide todos los aciertos; los reintentos de red son idempotentes.
-
-Para una demostración fluida, practica previamente las diez respuestas. El Coach sigue siendo determinista y el resultado no es una certificación MCER. No hay límite de tiempo ni penalización por leer explicaciones.
-
-## Uso de IA en la prueba
-
-**Declaración transparente:** se utilizó Codex como asistente para proponer el diseño, generar el primer prototipo, redactar documentación y ejecutar la prueba automática. El candidato debe revisar el código, ejecutarlo, modificar al menos una parte por sí mismo y poder explicar cada decisión antes de enviarlo. No se usó un LLM en tiempo de ejecución; el English Coach usa reglas. La autoría y el trabajo personal durante la revisión deben describirse según lo que realmente haga el candidato.
-
 Consulta `GUIA_ENTREVISTA.md` y el documento `Decisiones_Tecnicas_Global_AI.pdf` que acompaña al archivo comprimido.
 
 ## Verificación del flujo base
@@ -139,13 +125,6 @@ En un acierto, la respuesta se ilumina y una breve estela original viaja al sigu
 
 El control visible permite encender/apagar sonido y ajustar volumen. Por defecto está apagado; la preferencia se guarda en localStorage para el dispositivo. Incluso con una preferencia guardada, AudioContext solo se crea o reanuda tras una interacción. Web Audio sintetiza un acorde ascendente de acierto y dos notas suaves de reintento (menos de medio segundo). Silenciar o continuar detiene los efectos; un navegador sin Web Audio mantiene íntegro el feedback visual.
 
-### Demo de recompensas para la entrevista
-
-1. Mostrar el sonido inicialmente apagado y activarlo voluntariamente; ajustar volumen.
-2. Confirmar un acierto: brillo, estela, mensaje y +10 XP. Confirmar un error: señal suave, explicación y +5 XP por aprendizaje.
-3. Recargar y mostrar que el XP se conserva, sin volver a entregarlo ni reproducir efectos.
-4. Completar los diez retos: desglose de XP e insignia Navegante de los Ecos. Abrir historial y colección del dashboard.
-5. En un segundo intento, superar la nota anterior: +20 XP y Horizonte Ascendente. Preparar un primer intento de nota baja antes de la entrevista permite demostrar esta mejora rápidamente.
 
 Las pruebas automatizadas cubren XP con acierto/error, primer intento, mejora, empate, regresión, mejoras sucesivas, insignias únicas, manipulación del payload, aislamiento entre cuentas, reintentos concurrentes, recarga/reinicio y rollback. Las verificaciones anteriores del diagnóstico siguen activas.
 
@@ -161,7 +140,7 @@ El personaje original se dibuja una sola vez en `public/explorer.svg`: ojos expr
 
 La activación sale únicamente del feedback confirmado del servidor, mediante `effects.js`; usa el sonido existente una sola vez. Recargas y recuperación de respuestas no disparan la mascota. Si el SVG tarda en cargar y el estudiante continúa, la escena obsoleta se cancela. No se modifica la nota ni la lógica de XP e insignias.
 
-Para revisar el dibujo sin completar preguntas, abre **http://localhost:4173/mascot-preview.html**: muestra las dos poses y permite probar ambas animaciones sin sonido ni premios. En el examen, acierta un reto y falla otro para comprobar su integración real; pulsa Continuar durante el baile para ver que nunca bloquea la navegación.
+Para revisar el dibujo sin completar preguntas **http://localhost:4173/mascot-preview.html**
 
 Pruebas de Nilo: ambas reacciones usan el mismo SVG; la escena desaparece al continuar o al terminar su duración; un dibujo que llega tarde no aparece en otra pregunta; un fallo del asset no bloquea el flujo; movimiento reducido conserva una pose estática. Se mantiene la comprobación de una sola llamada de mascota y sonido por feedback.
 
