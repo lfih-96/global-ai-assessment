@@ -45,11 +45,15 @@ CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires_at);
 
 function hashPassword(password, salt) { return scryptSync(password, salt, 64).toString('hex'); }
 const demoEmail = 'estudiante@globalai.demo';
+const demoName = 'Fernando Ilbay';
 if (!db.prepare('SELECT id FROM users WHERE email = ?').get(demoEmail)) {
   const salt = randomBytes(16).toString('hex');
   db.prepare('INSERT INTO users (name,email,password_salt,password_hash) VALUES (?,?,?,?)')
-    .run('Alex Rivera', demoEmail, salt, hashPassword('GlobalAI2026!', salt));
+    .run(demoName, demoEmail, salt, hashPassword('GlobalAI2026!', salt));
 }
+// Keep the existing demo account and its progress; only refresh its display name.
+db.prepare('UPDATE users SET name = ? WHERE email = ? AND name <> ?')
+  .run(demoName, demoEmail, demoName);
 db.prepare('INSERT OR IGNORE INTO assessments (code,title,level,description,minutes) VALUES (?,?,?,?,?)')
   .run(assessment.code, assessment.title, assessment.level, assessment.description, assessment.minutes);
 const assessmentId = db.prepare('SELECT id FROM assessments WHERE code = ?').get(assessment.code).id;

@@ -37,6 +37,7 @@ test('expedición persistente, segura e idempotente', async t => {
     assert.equal((await api('/api/login', 'POST', { email: 'estudiante@globalai.demo', password: 'bad' })).status, 401);
     const login = await api('/api/login', 'POST', { email: 'estudiante@globalai.demo', password: 'GlobalAI2026!' });
     assert.equal(login.status, 200);
+    assert.equal(login.data.user.name, 'Fernando Ilbay');
     headers.Cookie = login.headers.get('set-cookie').split(';')[0];
     assert.equal((await api('/api/expedition', 'POST', {}, { Origin: 'https://evil.example' })).status, 403);
     const a = (await api('/api/assessment')).data;
@@ -72,7 +73,12 @@ test('expedición persistente, segura e idempotente', async t => {
     assert.equal(copies[0].data.review[0].correct, true);
     assert.equal(copies[0].data.review[0].correctAnswer, 'takes');
     assert.equal((await api(`/api/expedition/${run.id}/answers`, 'POST', { questionId: 'g1', value: 'take' })).status, 400);
-    await stop(); await start();
+    await stop();
+    const existing = new DatabaseSync(dbPath);
+    existing.prepare('UPDATE users SET name = ? WHERE email = ?').run('Nombre anterior', 'estudiante@globalai.demo');
+    existing.close();
+    await start();
+    assert.equal((await api('/api/me')).data.user.name, 'Fernando Ilbay');
     assert.deepEqual((await api('/api/expedition')).data.expedition, copies[0].data);
     assert.equal((await api('/api/attempts')).data.attempts.length, 0);
     assert.equal((await api('/api/rewards')).data.xp, 10);

@@ -28,6 +28,7 @@ Credenciales de prueba (precargadas en el formulario de demostración):
 ```text
 Correo:      estudiante@globalai.demo
 Contraseña:  GlobalAI2026!
+Nombre:      Fernando Ilbay
 ```
 
 La base de datos se crea automáticamente en `data/global-ai.sqlite`. Para reiniciar los datos locales, detén el servidor y elimina la carpeta `data/` (esto borra los intentos registrados). El puerto se modifica con `PORT=5000` en macOS/Linux o `$env:PORT=5000; npm start` en PowerShell. La ruta de base de datos se puede configurar con `DB_PATH`.
