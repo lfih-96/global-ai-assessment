@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 330" fill="none" class="explorer-drawing" role="img" aria-label="Nilo, joven explorador ilustrado de Global AI">
+  <ellipse cx="140" cy="310" rx="66" ry="10" fill="#102f40" opacity=".14"/>
+  <g class="explorer-sparkles" stroke="#dfae52" stroke-width="2.5" stroke-linecap="round">
+    <path d="M45 90v14m-7-7h14M229 136v12m-6-6h12M213 36v12m-6-6h12"/>
+    <path d="m42 184 3-7 3 7 7 3-7 3-3 7-3-7-7-3z" fill="#ffe2a0"/>
+    <circle cx="231" cy="207" r="3" fill="#ffe2a0" stroke="none"/>
+    <circle cx="67" cy="43" r="3" fill="#8adecc" stroke="none"/>
+  </g>
+  <g class="explorer-body" stroke="#233c4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- A small travel pack remains identifiable in every pose. -->
+    <g class="explorer-pack"><path d="M166 148q39-16 43 23l-2 54q-4 17-29 11l-14-15z" fill="#cf9a51"/><path d="M184 179q13-5 24 1v30q-11 8-22 1z" fill="#e6b86f"/><path d="M191 181v10m-9-40q9-15 15 1"/></g>
+    <g class="explorer-leg explorer-leg-left"><path d="m112 232-3 47 21 2 7-45" fill="#efb88c"/><path d="m109 263 23 2-2 20-24-1z" fill="#f2f4e9"/><path d="M106 280q15 7 26 0l1 18q-13 9-42 3-4-11 15-21z" fill="#258b85"/><path d="M92 299q18 5 40 0" stroke="#d0ede3"/><path d="m108 286 11 2" stroke="#eaf7ee"/></g>
+    <g class="explorer-leg explorer-leg-right"><path d="m148 235 5 46 22-2-3-48" fill="#efb88c"/><path d="m151 265 24-3 2 22-24 1z" fill="#f2f4e9"/><path d="M154 281q12 6 23-1 21 9 17 21-27 6-42-2z" fill="#258b85"/><path d="M153 299q24 5 40 0" stroke="#d0ede3"/><path d="m168 288 10-2" stroke="#eaf7ee"/></g>
+    <path d="m109 210-7 37q14 8 34 4l4-19 5 19q20 4 34-4l-8-37" fill="#263f54"/>
+    <g class="explorer-arm explorer-arm-left"><path d="M109 158q-13-8-22 8l-15 28q-6 12 5 18 9 5 15-6l20-25" fill="#edb98d"/><path d="M105 151q-15-3-25 24l21 13 19-27" fill="#55c6b2"/><path d="M76 203q-12-5-15 4-6 6 0 15 8 12 18 4 6-4 5-11" fill="#f3c69c"/><path d="m65 212 2 5m5-8 2 7" stroke-width="2"/></g>
+    <g class="explorer-arm explorer-arm-right"><path d="M174 158q13-8 22 8l15 28q6 12-5 18-9 5-15-6l-20-25" fill="#edb98d"/><path d="M176 151q15-3 25 24l-21 13-19-27" fill="#55c6b2"/><path d="M207 203q12-5 15 4 6 6 0 15-8 12-18 4-6-4-5-11" fill="#f3c69c"/><path d="m219 212-2 5m-5-8-2 7" stroke-width="2"/></g>
+    <path d="M111 149q30-14 60 0l10 67q-39 18-79 0z" fill="#52bfad"/>
+    <path d="m117 150-8 60m57-60 7 60" stroke="#205e65" stroke-width="7"/>
+    <path d="m117 150-8 60m57-60 7 60" stroke="#8bdcca" stroke-width="3"/>
+    <path d="M125 137v19q15 16 30 0v-19" fill="#e9ad80"/>
+    <path d="m123 151 17 16 18-16 3 11-21 17-21-17z" fill="#f1d79a" stroke-width="2"/>
+    <path d="M140 178v40" stroke="#2f8e82" stroke-width="2"/>
+    <path d="m153 187 4-7 4 7 8 2-6 6 1 8-7-4-7 4 1-8-6-6z" fill="#ffe4a1" stroke="#805c2d" stroke-width="1.8"/>
+    <path d="M115 204h14v10h-14z" fill="#85d8c3" stroke-width="2"/>
+    <g class="explorer-head">
+      <path d="M91 76q-11-11-18 5-4 14 12 21m104-26q11-11 18 5 4 14-12 21" fill="#efb68c"/>
+      <path d="M86 72q-2-44 55-44 55 0 55 45l-3 31q-5 44-52 46-50-2-55-46z" fill="#f4c59c"/>
+      <path d="M87 94q-8-6-7-29-1-26 23-37 17-22 40-11 37-9 49 19 17 11 9 45l-8 15-7-33q-16 4-24-15-20 25-54 20l-12-5z" fill="#293b4b"/>
+      <path d="M106 43q18-19 38-13" stroke="#4a6070" stroke-width="4"/>
+      <path d="M113 54q18-5 25-14" stroke="#4a6070" stroke-width="3"/>
+      <!-- Large ink-and-paper eyes, freckles and softly rounded features. -->
+      <g class="explorer-eyes"><ellipse cx="115" cy="93" rx="15" ry="19" fill="#fff9eb" stroke-width="2"/><ellipse cx="168" cy="93" rx="15" ry="19" fill="#fff9eb" stroke-width="2"/>
+        <g class="explorer-pupils" stroke="none"><ellipse cx="119" cy="96" rx="8" ry="12" fill="#263d4d"/><ellipse cx="164" cy="96" rx="8" ry="12" fill="#263d4d"/><circle cx="121" cy="90" r="3.5" fill="#fff"/><circle cx="166" cy="90" r="3.5" fill="#fff"/><circle cx="116" cy="101" r="1.5" fill="#8bdac8"/><circle cx="161" cy="101" r="1.5" fill="#8bdac8"/></g>
+      </g>
+      <path class="explorer-brow-left" d="M102 70q12-7 23-1" stroke-width="4"/>
+      <path class="explorer-brow-right" d="M157 69q12-6 23 1" stroke-width="4"/>
+      <path d="m140 99-3 10q4 4 9 0" stroke="#ba7c59" stroke-width="2"/>
+      <ellipse cx="101" cy="114" rx="10" ry="5" fill="#e99d89" opacity=".7" stroke="none"/><ellipse cx="183" cy="114" rx="10" ry="5" fill="#e99d89" opacity=".7" stroke="none"/>
+      <path d="M108 113h.1m6 2h.1m60 0h.1m5-2h.1" stroke="#b87350" stroke-width="2.5"/>
+      <g class="explorer-smile"><path d="M124 122q17 6 34 0-4 18-17 18-13 0-17-18z" fill="#754950" stroke-width="2"/><path d="M127 123q14 5 28 0l-3 6h-22z" fill="#fff8e6" stroke="none"/><path d="M134 136q7-7 14 0" stroke="#de8c91" stroke-width="3"/></g>
+      <path class="explorer-sad-mouth" d="M129 130q12-10 24 0" stroke="#825442" stroke-width="3" opacity="0"/>
+      <path d="M89 63q-4-23 12-30" stroke="#294855" stroke-width="7"/>
+      <path d="m88 61 17-11 4 13-19 9z" fill="#66cbb6" stroke-width="2"/>
+      <path d="m99 55 2 3 4 1-3 2v4l-3-2-3 1 1-4-2-2z" fill="#ffe2a0" stroke="none"/>
+    </g>
+  </g>
+</svg>

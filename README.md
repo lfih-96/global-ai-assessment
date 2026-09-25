@@ -152,3 +152,17 @@ Las pruebas automatizadas cubren XP con acierto/error, primer intento, mejora, e
 ## Verificación de la capa de premios
 
 La suite ampliada pasa 10/10 pruebas (incluye un test contenedor). Se prueban también los eventos y preferencias de Web Audio con un doble de prueba: silencio inicial, activación explícita, frecuencias diferentes, volumen cero, persistencia sin autoplay, duplicados, movimiento reducido y almacenamiento bloqueado. Se fuerzan fallos al guardar tanto el resultado como la insignia para verificar rollback de toda la transacción. Estos tests no validan la salida acústica física de los altavoces.
+
+## Nilo, compañero ilustrado 2D
+
+El personaje original se dibuja una sola vez en `public/explorer.svg`: ojos expresivos, chaqueta turquesa, mochila ocre y estrella. `mascot.css` anima sus grupos SVG, con pasos, brazos, cabeza y una pose de victoria; ante un error, la mirada baja y los hombros caen brevemente antes de recuperar una sonrisa alentadora.
+
+`mascot.js` precarga el dibujo y lo muestra centrado en una capa fija, sin alterar el contenido ni capturar clics. Dura 2,7 segundos incluyendo entrada y salida suaves; Continuar lo retira inmediatamente. Con movimiento reducido muestra una pose estática durante 1,6 segundos. La explicación textual accesible sigue presente y el SVG superpuesto es decorativo.
+
+La activación sale únicamente del feedback confirmado del servidor, mediante `effects.js`; usa el sonido existente una sola vez. Recargas y recuperación de respuestas no disparan la mascota. Si el SVG tarda en cargar y el estudiante continúa, la escena obsoleta se cancela. No se modifica la nota ni la lógica de XP e insignias.
+
+Para revisar el dibujo sin completar preguntas, abre **http://localhost:4173/mascot-preview.html**: muestra las dos poses y permite probar ambas animaciones sin sonido ni premios. En el examen, acierta un reto y falla otro para comprobar su integración real; pulsa Continuar durante el baile para ver que nunca bloquea la navegación.
+
+Pruebas de Nilo: ambas reacciones usan el mismo SVG; la escena desaparece al continuar o al terminar su duración; un dibujo que llega tarde no aparece en otra pregunta; un fallo del asset no bloquea el flujo; movimiento reducido conserva una pose estática. Se mantiene la comprobación de una sola llamada de mascota y sonido por feedback.
+
+Verificación final de Nilo: npm test pasa 12/12 (incluido el test contenedor). Se revisaron acierto, error y transición hacia el ánimo en navegador a 1366×900 y 390×844. Se comprobó el centrado, la retirada inmediata al pulsar Continuar, la ausencia de repetición al recargar y el recorrido hasta resultados, historial y colección. La reducción de movimiento y los fallos de carga del SVG están cubiertos con pruebas automatizadas; no se realizó una auditoría con lector de pantalla ni una comprobación acústica física.

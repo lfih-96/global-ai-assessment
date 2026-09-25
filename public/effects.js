@@ -1,3 +1,4 @@
+import { showMascot } from './mascot.js';
 const key = 'global-ai:sound:v1';
 let preference = { enabled: false, volume: 35 };
 try {
@@ -14,7 +15,7 @@ controls.innerHTML = `<button type="button" id="sound-toggle" aria-pressed="fals
 const toggle = controls.querySelector('#sound-toggle');
 const volume = controls.querySelector('#sound-volume');
 const status = controls.querySelector('#sound-status');
-function save() { try { localStorage.setItem(key, JSON.stringify(preference)); } catch {} }
+function save() { try { localStorage.setItem(key, JSON.stringify(preference)); } catch { } }
 function sync() {
   toggle.textContent = `Sonido: ${preference.enabled ? 'activado' : 'apagado'}`;
   toggle.setAttribute('aria-pressed', String(preference.enabled));
@@ -41,7 +42,7 @@ volume.addEventListener('input', () => {
 if (!Audio) { toggle.disabled = true; status.textContent = 'Este navegador no admite los efectos de audio.'; }
 sync();
 export function stopSound() {
-  for (const oscillator of voices) { try { oscillator.stop(); } catch {} }
+  for (const oscillator of voices) { try { oscillator.stop(); } catch { } }
   voices.clear();
 }
 function play(correct) {
@@ -69,6 +70,7 @@ export function celebrate(runId, feedback) {
   const card = document.querySelector('.question-card');
   if (!card) return;
   play(feedback.correct);
+  void showMascot(feedback.correct);
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   card.classList.add(feedback.correct ? 'celebrate-correct' : 'celebrate-learning');
   const trail = card.querySelector('.star-trail');

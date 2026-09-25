@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Nilo · Cuaderno de personaje</title>
+    <link rel="stylesheet" href="/mascot.css">
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: #102232;
+            color: #edf5ed;
+            font: 16px/1.6 system-ui, sans-serif
+        }
+
+        main {
+            max-width: 980px;
+            margin: auto;
+            padding: 42px 24px
+        }
+
+        header {
+            max-width: 720px
+        }
+
+        small {
+            color: #8de1ca;
+            letter-spacing: .16em;
+            font-weight: 700
+        }
+
+        h1 {
+            font-size: 48px;
+            line-height: 1.1;
+            margin: 14px 0
+        }
+
+        p {
+            color: #bed2d7
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin: 30px 0
+        }
+
+        .sample {
+            background: #f4f1e5;
+            border: 1px solid #cbd9ca;
+            color: #203b49;
+            border-radius: 26px;
+            padding: 24px;
+            text-align: center
+        }
+
+        .sample h2 {
+            font-size: 22px;
+            margin: 0
+        }
+
+        .sample p {
+            color: #496069;
+            font-size: 14px
+        }
+
+        .sample .mascot-scene {
+            margin: auto;
+            width: 250px
+        }
+
+        .sample button {
+            border: 0;
+            border-radius: 30px;
+            background: #235e61;
+            color: #f5fff2;
+            font: 700 14px system-ui;
+            padding: 15px 24px;
+            cursor: pointer;
+            min-height: 48px
+        }
+
+        .sample button:focus-visible,
+        a:focus-visible {
+            outline: 3px solid #c28a24;
+            outline-offset: 4px
+        }
+
+        .preview-concern .explorer-smile {
+            opacity: 0
+        }
+
+        .preview-concern .explorer-sad-mouth {
+            opacity: 1
+        }
+
+        .preview-concern .explorer-head {
+            transform: rotate(7deg) translateY(4px)
+        }
+
+        .preview-concern .explorer-pupils {
+            transform: translateY(5px)
+        }
+
+        .preview-concern .explorer-brow-left {
+            transform: rotate(-18deg)
+        }
+
+        .preview-concern .explorer-brow-right {
+            transform: rotate(18deg)
+        }
+
+        .preview-concern .explorer-arm-right {
+            transform: rotate(8deg) !important
+        }
+
+        .sample .explorer-sparkles {
+            opacity: .5
+        }
+
+        a {
+            color: #9ce5cd
+        }
+
+        .note {
+            border-left: 3px solid #68c8b2;
+            padding-left: 20px
+        }
+
+        @media(max-width:650px) {
+            main {
+                padding: 26px 18px
+            }
+
+            h1 {
+                font-size: 36px
+            }
+
+            .gallery {
+                grid-template-columns: 1fr
+            }
+
+            .sample {
+                padding: 20px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <header><small>GLOBAL AI · THE ENGLISH EXPEDITION</small>
+            <h1>Conoce a Nilo.</h1>
+            <p>Una mochila llena de curiosidad. Una estrella que señala el siguiente paso. El mismo compañero en los
+                aciertos y en lo que todavía estamos aprendiendo.</p>
+        </header>
+        <section class="gallery">
+            <article class="sample">
+                <h2>Una pequeña victoria</h2>
+                <div id="happy" class="mascot--correct mascot--still"></div>
+                <p>Pasos alternos, brazos que acompañan el ritmo y una sonrisa que termina en victoria.</p><button
+                    id="dance">Ver el baile</button>
+            </article>
+            <article class="sample">
+                <h2>Seguimos juntos</h2>
+                <div id="thoughtful" class="mascot--learning mascot--still preview-concern"></div>
+                <p>Baja la mirada un instante. Respira, levanta el rostro y vuelve a ofrecerte ánimo.</p><button
+                    id="encourage">Ver tristeza → ánimo</button>
+            </article>
+        </section>
+        <p class="note">Esta vista solo muestra el dibujo: no reproduce sonido ni entrega premios. En la evaluación,
+            Nilo aparece únicamente después de recibir la corrección del servidor. Puedes continuar en cualquier
+            momento.</p><a href="/">Volver a la expedición →</a>
+    </main>
+    <script type="module">
+        import { showMascot } from '/mascot.js';
+        const svg = await fetch('/explorer.svg').then(r => r.text());
+        for (const id of ['happy', 'thoughtful']) document.getElementById(id).innerHTML = '<div class="mascot-scene">' + svg + '</div>';
+        document.getElementById('dance').addEventListener('click', () => showMascot(true));
+        document.getElementById('encourage').addEventListener('click', () => showMascot(false));
+    </script>
+</body>
+
+</html>
