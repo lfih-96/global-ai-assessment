@@ -1,3 +1,4 @@
+import { rewardAnswer, rewardCompletion, runRewards, rewardProfile } from './rewards.js';
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
@@ -95,7 +96,7 @@ function history(user) {
     b.title,b.level FROM attempts a JOIN assessments b ON b.id = a.assessment_id
     WHERE a.user_id = ? ORDER BY a.id DESC LIMIT 20`).all(user.id).map(a => ({
     id: a.id, date: a.created_at, score: a.score_percent, correctCount: a.correct_count,
-    incorrectCount: a.incorrect_count, skills: JSON.parse(a.skills_json), title: a.title, level: a.level
+    incorrectCount: a.incorrect_count, skills: JSON.parse(a.skills_json), title: a.title, level: a.level, rewards: runRewards(db.prepare('SELECT id FROM expeditions WHERE result_id = ?').get(a.id)?.id || -1)
   }));
 }
 
@@ -106,9 +107,9 @@ function expeditionView(run) {
   if (run.result_id) {
     const r = db.prepare('SELECT * FROM attempts WHERE id = ?').get(run.result_id);
     result = { id: r.id, score: r.score_percent, correctCount: r.correct_count, incorrectCount: r.incorrect_count,
-      skills: JSON.parse(r.skills_json), feedback: r.feedback, interpretation: JSON.parse(r.interpretation), review };
+      skills: JSON.parse(r.skills_json), feedback: r.feedback, interpretation: JSON.parse(r.interpretation), review, rewards: runRewards(run.id) };
   }
-  return { id: run.id, answered: review.length, review, result };
+  return { id: run.id, answered: review.length, review, result, rewards: runRewards(run.id) };
 }
 class AnswerError extends Error {}
 function confirmAnswer(user, id, payload) {
@@ -128,7 +129,7 @@ function confirmAnswer(user, id, payload) {
       if (!q || q.id !== payload.questionId) throw new AnswerError('Confirma los retos en orden. Retoma el intento para recuperar tu progreso.');
       if (q.options_json && !JSON.parse(q.options_json).includes(value)) throw new AnswerError('Elige una de las opciones disponibles.');
       const correct = value.toLocaleLowerCase('en').replace(/\s+/g, ' ') === q.correct_answer.toLocaleLowerCase('en');
-      const feedback = { id: q.id, response: value, correct, correctAnswer: q.correct_answer, explanation: q.explanation };
+      const feedback = { id: q.id, response: value, correct, correctAnswer: q.correct_answer, explanation: q.explanation, reward: rewardAnswer(run, q.id, correct) };
       db.prepare('INSERT INTO expedition_answers VALUES (?,?,?,?)').run(id, q.id, value, JSON.stringify(feedback));
       const rows = db.prepare('SELECT question_id AS id,response AS value FROM expedition_answers WHERE expedition_id = ?').all(id);
       const total = db.prepare('SELECT COUNT(*) AS n FROM questions WHERE assessment_id = ?').get(run.assessment_id).n;
@@ -136,6 +137,8 @@ function confirmAnswer(user, id, payload) {
         const result = submit(user, { assessmentId: run.assessment_id, answers: rows }, false);
         db.prepare('UPDATE expeditions SET result_id = ? WHERE id = ?').run(result.id, id);
         run.result_id = result.id;
+        rewardCompletion(run, result, feedback.reward);
+        db.prepare('UPDATE expedition_answers SET feedback_json = ? WHERE expedition_id = ? AND question_id = ?').run(JSON.stringify(feedback), id, q.id);
       }
     }
     const view = expeditionView(run);
@@ -175,6 +178,7 @@ async function api(req, res, url) {
     res.setHeader('Set-Cookie', 'ga_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0');
     return json(res, 200, { ok: true });
   }
+  if (url.pathname === '/api/rewards' && req.method === 'GET') return json(res, 200, rewardProfile(user.id));
   if (url.pathname === '/api/assessment' && req.method === 'GET') return json(res, 200, assessmentForClient());
   if (url.pathname === '/api/attempts' && req.method === 'GET') return json(res, 200, { attempts: history(user) });
   if (url.pathname === '/api/expedition' && req.method === 'GET') {

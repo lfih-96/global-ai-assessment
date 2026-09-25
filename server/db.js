@@ -82,3 +82,16 @@ CREATE TABLE IF NOT EXISTS expedition_answers (
  feedback_json TEXT NOT NULL, PRIMARY KEY(expedition_id,question_id)
 );
 `);
+
+// Reward ledger: immutable events, one badge of each kind per student.
+db.exec(`
+CREATE TABLE IF NOT EXISTS reward_events (
+ expedition_id INTEGER NOT NULL REFERENCES expeditions(id), event TEXT NOT NULL,
+ xp INTEGER NOT NULL CHECK(xp >= 0), PRIMARY KEY(expedition_id,event)
+);
+CREATE TABLE IF NOT EXISTS earned_badges (
+ user_id INTEGER NOT NULL REFERENCES users(id), code TEXT NOT NULL,
+ expedition_id INTEGER NOT NULL REFERENCES expeditions(id),
+ PRIMARY KEY(user_id,code)
+);
+`);
