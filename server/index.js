@@ -32,8 +32,10 @@ function assessmentForClient() {
   const row = db.prepare('SELECT id,title,level,description,minutes FROM assessments WHERE active = 1 ORDER BY id LIMIT 1').get();
   if (!row) return null;
   const items = db.prepare('SELECT id,type,skill,level,prompt,options_json,passage FROM questions WHERE assessment_id = ? ORDER BY position').all(row.id)
-    .map(q => ({ id: q.id, type: q.type, skill: q.skill, level: q.level, prompt: q.prompt,
-      ...(q.options_json ? { options: JSON.parse(q.options_json) } : {}), ...(q.passage ? { passage: q.passage } : {}) }));
+    .map(q => ({
+      id: q.id, type: q.type, skill: q.skill, level: q.level, prompt: q.prompt,
+      ...(q.options_json ? { options: JSON.parse(q.options_json) } : {}), ...(q.passage ? { passage: q.passage } : {})
+    }));
   return { ...row, questions: items };
 }
 
@@ -43,7 +45,7 @@ function interpretation(score) {
   return { title: 'Una gran aventura comienza aquí', detail: 'Empieza reforzando fundamentos A1 antes de repetir este diagnóstico A2.', tone: 'low' };
 }
 function feedbackFor(skills) {
-  const weakest = Object.entries(skills).sort((a,b) => a[1].percent - b[1].percent)[0];
+  const weakest = Object.entries(skills).sort((a, b) => a[1].percent - b[1].percent)[0];
   const tips = {
     Grammar: 'Repasa comparativos, tiempos verbales y conectores con ejemplos de tu día a día.',
     Reading: 'Lee mensajes cortos en inglés e identifica quién, dónde y cuándo antes de responder.',
@@ -92,9 +94,9 @@ function history(user) {
   return db.prepare(`SELECT a.id,a.created_at,a.score_percent,a.correct_count,a.incorrect_count,a.skills_json,
     b.title,b.level FROM attempts a JOIN assessments b ON b.id = a.assessment_id
     WHERE a.user_id = ? ORDER BY a.id DESC LIMIT 20`).all(user.id).map(a => ({
-      id: a.id, date: a.created_at, score: a.score_percent, correctCount: a.correct_count,
-      incorrectCount: a.incorrect_count, skills: JSON.parse(a.skills_json), title: a.title, level: a.level
-    }));
+    id: a.id, date: a.created_at, score: a.score_percent, correctCount: a.correct_count,
+    incorrectCount: a.incorrect_count, skills: JSON.parse(a.skills_json), title: a.title, level: a.level
+  }));
 }
 
 async function api(req, res, url) {
@@ -123,7 +125,7 @@ async function api(req, res, url) {
   if (!user) return error(res, 401, 'Inicia sesión para continuar.');
   if (url.pathname === '/api/me' && req.method === 'GET') return json(res, 200, { user: publicUser(user) });
   if (url.pathname === '/api/logout' && req.method === 'POST') {
-    const token = (req.headers.cookie || '').split(';').map(x=>x.trim()).find(x=>x.startsWith('ga_session='))?.slice(11);
+    const token = (req.headers.cookie || '').split(';').map(x => x.trim()).find(x => x.startsWith('ga_session='))?.slice(11);
     if (token) db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(sha(token));
     res.setHeader('Set-Cookie', 'ga_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0');
     return json(res, 200, { ok: true });
