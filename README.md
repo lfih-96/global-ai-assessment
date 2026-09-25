@@ -2,10 +2,18 @@
 
 Prototipo funcional de evaluación de inglés A2 para la prueba técnica de Global AI. Incluye login, dashboard, 10 preguntas, resultados por habilidad, registro de intentos y progreso. La experiencia visual propone una expedición de aprendizaje con checkpoints y un mensaje del English Coach basado en reglas.
 
+## Demo pública
+
+**Aplicación:** [https://global-ai-assessment.onrender.com/](https://global-ai-assessment.onrender.com/)
+
+El frontend y la API se sirven juntos desde un Web Service de Render con Node.js 24. Configuración del despliegue: comando de construcción `npm install` y comando de inicio `npm start`. Usa las credenciales de demostración indicadas más abajo. La cuenta es compartida entre quienes prueben la aplicación.
+
+**Datos temporales en Render Free:** el servicio se suspende después de 15 minutos sin tráfico y el siguiente acceso puede tardar alrededor de un minuto. Al suspenderse, reiniciarse o volver a desplegarse, Render descarta los archivos locales, incluida la base SQLite `data/global-ai.sqlite`; por eso se reinician sesiones, intentos, XP e insignias de esta demo. Para conservar el progreso en línea haría falta un servicio de pago con disco persistente (por ejemplo, montado en `/var/data` y `DB_PATH=/var/data/global-ai.sqlite`) o migrar a PostgreSQL. En la ejecución local, SQLite permanece en `data/` hasta que se elimine esa carpeta.
+
 ## Requisitos
 
 - Node.js **24 o superior** (`node --version`). La base SQLite usa `node:sqlite` incorporado en Node 24.
-- No requiere npm install, cuentas externas ni claves API.
+- Para ejecutarlo localmente no requiere `npm install`, cuentas externas ni claves API.
 
 ## Ejecutar
 
@@ -21,7 +29,7 @@ node --version
 npm start
 ```
 
-En otra terminal, `npm test` ejecuta la prueba de integración. `npm run dev` reinicia el servidor al modificar archivos del backend.
+En otra terminal, `npm test` ejecuta la suite automatizada. `npm run dev` reinicia el servidor al modificar archivos del backend.
 
 Credenciales de prueba (precargadas en el formulario de demostración):
 
@@ -69,16 +77,16 @@ Una sola aplicación sirve archivos estáticos y API en el mismo origen; esto ev
 | POST | `/api/expedition/:id/answers` | Confirmar la siguiente pregunta y devolver feedback |
 | GET | `/api/attempts` | Historial propio |
 
-Entidades: `users`, `sessions`, `assessments`, `questions`, `attempts`, `attempt_answers`, `expeditions` y `expedition_answers`. La migración es aditiva: conserva usuarios, sesiones y resultados existentes. `assessments.level` y `questions.level` permiten añadir niveles sin rehacer los intentos. Las contraseñas se guardan con salt y scrypt; la cookie es HttpOnly y SameSite=Strict; solo el hash del token se guarda en SQLite. La cookie requiere `Secure` al desplegar detrás de HTTPS (véase límites de producción).
+Entidades: `users`, `sessions`, `assessments`, `questions`, `attempts`, `attempt_answers`, `expeditions` y `expedition_answers`. La migración es aditiva: conserva usuarios, sesiones y resultados existentes. `assessments.level` y `questions.level` permiten añadir niveles sin rehacer los intentos. Las contraseñas se guardan con salt y scrypt; la cookie es HttpOnly y SameSite=Strict; solo el hash del token se guarda en SQLite. Render ofrece HTTPS público, pero la aplicación solo añade `Secure` cuando la conexión recibida por Node está cifrada; hay que configurarlo explícitamente detrás del proxy antes de producción.
 
 ## Decisiones y límites conscientes
 
 - Stack sin dependencias externas: ejecutable rápidamente en Node 24; SQLite almacena los intentos de forma real y permite inspeccionar los datos. Para una instalación distribuida migraría a PostgreSQL.
 - El English Coach es **simulado/determinista**; no hay llamadas a Claude u otro modelo ni coste o clave de IA. La selección de la habilidad a reforzar se calcula a partir del menor porcentaje; el contenido de las recomendaciones es fijo y revisable.
-- Las respuestas confirmadas se recuperan desde SQLite al recargar, reiniciar el servidor o volver a iniciar sesión. La selección aún no confirmada solo está en memoria y se pierde al recargar. No hay modo sin conexión: se conserva la selección durante un error de envío para poder reintentar.
+- En local o con almacenamiento persistente, las respuestas confirmadas se recuperan desde SQLite al recargar, reiniciar el servidor o volver a iniciar sesión. La selección aún no confirmada solo está en memoria y se pierde al recargar. No hay modo sin conexión: se conserva la selección durante un error de envío para poder reintentar. En Render Free aplica la pérdida de datos descrita en «Demo pública».
 - Existe una sola cuenta de demostración y un solo examen A2. No se ha implementado gestión de profesores o administradores, certificados ni niveles adicionales.
 - La semilla inicial se inserta si la pregunta aún no existe; para editar una pregunta ya publicada se necesitaría versionado y migraciones. No cambiar preguntas en una versión histórica del examen.
-- Para producción: HTTPS, cookies Secure detrás de proxy, configuración de secretos, recuperación de contraseña, auditoría, protección distribuida ante abuso, control de acceso por rol, accesibilidad probada con usuarios, copias de seguridad y CI/CD.
+- Para producción: cookies Secure detrás del proxy, configuración de secretos, recuperación de contraseña, auditoría, protección distribuida ante abuso, control de acceso por rol, accesibilidad probada con usuarios, copias de seguridad y CI/CD.
 
 ## Pruebas
 
@@ -92,7 +100,7 @@ Ejemplo de confirmación: POST /api/expedition/1/answers con JSON {"questionId":
 
 La interfaz espera hasta 12 segundos por petición, comunica errores y permite repetir el envío o recuperar el progreso. Volver a confirmar la décima pregunta no crea otro resultado. Los tres paisajes son SVG originales, las fuentes son locales y el audio se sintetiza localmente y no hay servicios externos. Radios nativos, formularios, foco visible, feedback textual y prefers-reduced-motion acompañan la interacción.
 
-Consulta `GUIA_ENTREVISTA.md` y el documento `Decisiones_Tecnicas_Global_AI.pdf` que acompaña al archivo comprimido.
+El documento `Decisiones_Tecnicas_Global_AI.pdf` se entrega por separado junto con el enlace de la demo y el repositorio.
 
 ## Verificación del flujo base
 
