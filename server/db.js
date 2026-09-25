@@ -67,3 +67,18 @@ export function verifyPassword(password, user) {
 }
 import { timingSafeEqual } from 'node:crypto';
 function awaitSafeEqual(a, b) { return timingSafeEqual(a, b); }
+
+// Additive migration: existing results and sessions are preserved.
+db.exec(`
+CREATE TABLE IF NOT EXISTS expeditions (
+ id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id),
+ assessment_id INTEGER NOT NULL REFERENCES assessments(id),
+ result_id INTEGER REFERENCES attempts(id), created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS one_open_expedition ON expeditions(user_id) WHERE result_id IS NULL;
+CREATE TABLE IF NOT EXISTS expedition_answers (
+ expedition_id INTEGER NOT NULL REFERENCES expeditions(id),
+ question_id TEXT NOT NULL REFERENCES questions(id), response TEXT NOT NULL,
+ feedback_json TEXT NOT NULL, PRIMARY KEY(expedition_id,question_id)
+);
+`);

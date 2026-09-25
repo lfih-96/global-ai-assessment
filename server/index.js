@@ -54,7 +54,7 @@ function feedbackFor(skills) {
   return `Tu siguiente paso: ${weakest?.[0] || 'Grammar'}. ${tips[weakest?.[0]] || tips.Grammar}`;
 }
 
-function submit(user, payload) {
+function submit(user, payload, transaction = true) {
   const assessment = assessmentForClient();
   if (!assessment || payload?.assessmentId !== assessment.id || !Array.isArray(payload.answers)) throw new Error('Evaluación o respuestas inválidas.');
   const rows = db.prepare('SELECT id,skill,type,options_json,correct_answer,explanation FROM questions WHERE assessment_id = ? ORDER BY position').all(assessment.id);
@@ -79,15 +79,15 @@ function submit(user, payload) {
   const score = Math.round(correctCount / rows.length * 100);
   const message = feedbackFor(skills);
   const outcome = interpretation(score);
-  db.exec('BEGIN IMMEDIATE');
+  if (transaction) db.exec('BEGIN IMMEDIATE');
   try {
     const id = db.prepare(`INSERT INTO attempts (user_id,assessment_id,score_percent,correct_count,incorrect_count,skills_json,feedback,interpretation)
       VALUES (?,?,?,?,?,?,?,?)`).run(user.id, assessment.id, score, correctCount, rows.length - correctCount, JSON.stringify(skills), message, JSON.stringify(outcome)).lastInsertRowid;
     const insert = db.prepare('INSERT INTO attempt_answers (attempt_id,question_id,response,is_correct) VALUES (?,?,?,?)');
     review.forEach(r => insert.run(id, r.id, r.response, Number(r.correct)));
-    db.exec('COMMIT');
+    if (transaction) db.exec('COMMIT');
     return { id: Number(id), score, correctCount, incorrectCount: rows.length - correctCount, skills, feedback: message, interpretation: outcome, review };
-  } catch (e) { db.exec('ROLLBACK'); throw e; }
+  } catch (e) { if (transaction) db.exec('ROLLBACK'); throw e; }
 }
 
 function history(user) {
@@ -97,6 +97,51 @@ function history(user) {
     id: a.id, date: a.created_at, score: a.score_percent, correctCount: a.correct_count,
     incorrectCount: a.incorrect_count, skills: JSON.parse(a.skills_json), title: a.title, level: a.level
   }));
+}
+
+
+function expeditionView(run) {
+  const review = db.prepare('SELECT feedback_json FROM expedition_answers WHERE expedition_id = ? ORDER BY rowid').all(run.id).map(r => JSON.parse(r.feedback_json));
+  let result = null;
+  if (run.result_id) {
+    const r = db.prepare('SELECT * FROM attempts WHERE id = ?').get(run.result_id);
+    result = { id: r.id, score: r.score_percent, correctCount: r.correct_count, incorrectCount: r.incorrect_count,
+      skills: JSON.parse(r.skills_json), feedback: r.feedback, interpretation: JSON.parse(r.interpretation), review };
+  }
+  return { id: run.id, answered: review.length, review, result };
+}
+class AnswerError extends Error {}
+function confirmAnswer(user, id, payload) {
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    const run = db.prepare('SELECT * FROM expeditions WHERE id = ? AND user_id = ?').get(id, user.id);
+    if (!run) throw new AnswerError('Intento no encontrado.');
+    if (!payload || typeof payload.questionId !== 'string' || typeof payload.value !== 'string' || !payload.value.trim() || payload.value.length > 200) throw new AnswerError('Selecciona o escribe una respuesta antes de confirmar.');
+    const value = payload.value.trim();
+    const saved = db.prepare('SELECT response FROM expedition_answers WHERE expedition_id = ? AND question_id = ?').get(id, payload.questionId);
+    if (saved) {
+      if (saved.response !== value) throw new AnswerError('Esta respuesta ya fue confirmada. Retoma el intento para recuperar tu progreso.');
+    } else {
+      if (run.result_id) throw new AnswerError('Esta expedición ya terminó.');
+      const count = db.prepare('SELECT COUNT(*) AS n FROM expedition_answers WHERE expedition_id = ?').get(id).n;
+      const q = db.prepare('SELECT * FROM questions WHERE assessment_id = ? ORDER BY position LIMIT 1 OFFSET ?').get(run.assessment_id, count);
+      if (!q || q.id !== payload.questionId) throw new AnswerError('Confirma los retos en orden. Retoma el intento para recuperar tu progreso.');
+      if (q.options_json && !JSON.parse(q.options_json).includes(value)) throw new AnswerError('Elige una de las opciones disponibles.');
+      const correct = value.toLocaleLowerCase('en').replace(/\s+/g, ' ') === q.correct_answer.toLocaleLowerCase('en');
+      const feedback = { id: q.id, response: value, correct, correctAnswer: q.correct_answer, explanation: q.explanation };
+      db.prepare('INSERT INTO expedition_answers VALUES (?,?,?,?)').run(id, q.id, value, JSON.stringify(feedback));
+      const rows = db.prepare('SELECT question_id AS id,response AS value FROM expedition_answers WHERE expedition_id = ?').all(id);
+      const total = db.prepare('SELECT COUNT(*) AS n FROM questions WHERE assessment_id = ?').get(run.assessment_id).n;
+      if (rows.length === total) {
+        const result = submit(user, { assessmentId: run.assessment_id, answers: rows }, false);
+        db.prepare('UPDATE expeditions SET result_id = ? WHERE id = ?').run(result.id, id);
+        run.result_id = result.id;
+      }
+    }
+    const view = expeditionView(run);
+    db.exec('COMMIT');
+    return view;
+  } catch (e) { db.exec('ROLLBACK'); throw e; }
 }
 
 async function api(req, res, url) {
@@ -132,10 +177,21 @@ async function api(req, res, url) {
   }
   if (url.pathname === '/api/assessment' && req.method === 'GET') return json(res, 200, assessmentForClient());
   if (url.pathname === '/api/attempts' && req.method === 'GET') return json(res, 200, { attempts: history(user) });
-  if (url.pathname === '/api/attempts' && req.method === 'POST') {
-    try { return json(res, 201, submit(user, await body(req))); }
-    catch (e) { return error(res, 400, e.message); }
+  if (url.pathname === '/api/expedition' && req.method === 'GET') {
+    const run = db.prepare('SELECT * FROM expeditions WHERE user_id = ? ORDER BY id DESC LIMIT 1').get(user.id);
+    return json(res, 200, { expedition: run ? expeditionView(run) : null });
   }
+  if (url.pathname === '/api/expedition' && req.method === 'POST') {
+    const assessment = assessmentForClient();
+    db.prepare('INSERT OR IGNORE INTO expeditions (user_id,assessment_id) VALUES (?,?)').run(user.id, assessment.id);
+    return json(res, 200, expeditionView(db.prepare('SELECT * FROM expeditions WHERE user_id = ? AND result_id IS NULL').get(user.id)));
+  }
+  const answerRoute = url.pathname.match(/^\/api\/expedition\/(\d+)\/answers$/);
+  if (answerRoute && req.method === 'POST') {
+    try { return json(res, 200, confirmAnswer(user, Number(answerRoute[1]), await body(req))); }
+    catch (e) { if (e instanceof AnswerError) return error(res, 400, e.message); throw e; }
+  }
+  if (url.pathname === '/api/attempts' && req.method === 'POST') return error(res, 410, 'Inicia una expedición y confirma cada respuesta.');
   return error(res, 404, 'Ruta no encontrada.');
 }
 

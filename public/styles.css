@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
-
 :root {
     font-family: 'DM Sans', system-ui, sans-serif;
     color: #e9f2f2;
@@ -1817,3 +1815,91 @@ p {
         transition: none !important
     }
 }
+/* Expedition: original Global AI landscapes, no external fonts or assets. */
+:root { font-family: system-ui, sans-serif; }
+button, a, input, summary { touch-action: manipulation; }
+:focus-visible { outline: 3px solid #bf7c08 !important; outline-offset: 4px; }
+.back-link, .text-button, .text-link, .notice button { min-height:44px; }
+.journey-progress { display:block; width:100%; height:9px; margin:24px 0; border:0; border-radius:20px; background:#294454; accent-color:#68e0ce; }
+.journey-progress::-webkit-progress-bar { background:#294454; border-radius:20px; }
+.journey-progress::-webkit-progress-value { background:#68e0ce; border-radius:20px; transition:width .25s; }
+.journey-map { list-style:none; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:0; margin:0 0 28px; }
+.journey-map li { display:flex; align-items:center; gap:12px; padding:15px; border:1px solid #486376; border-radius:14px; color:#b0c5ce; }
+.journey-map li[aria-current] { background:#204852; border-color:#78e7d3; color:#baf8e9; }
+.journey-map li.visited { color:#94e7d3; }
+.journey-map li>span { font-size:26px; }
+.journey-map small, .journey-map strong { display:block; }
+.journey-map small { font-size:10px; margin-bottom:5px; letter-spacing:.1em; }
+.journey-map strong { font-size:13px; }
+.expedition-scene { color:#92e4d5; padding:18px 0; }
+.expedition-scene h2 { font-size:29px; letter-spacing:-.04em; color:#f1f6f3; }
+.expedition-scene p { color:#b0c5ce; line-height:1.6; }
+.landscape { display:block; width:100%; max-height:210px; margin:16px 0; }
+.scene--trail .expedition-scene { color:#c3bbf7; }
+.scene--harbor .expedition-scene { color:#f1ca87; }
+.passport { margin-top:30px; padding:20px; border:1px dashed currentColor; border-radius:12px; font-size:10px; letter-spacing:.1em; }
+.passport strong { display:block; font-size:24px; margin:10px 0; }
+.passport small { display:block; color:#b0c5ce; letter-spacing:0; line-height:1.5; }
+.question-card { animation:arrive .22s ease-out; }
+.challenge-instruction { color:#405d68; font-size:14px; line-height:1.5; }
+.question-card h1 { margin-bottom:18px; }
+.choice { transition:border-color .12s, background .12s; }
+.choice:has(input:focus-visible) { outline:3px solid #956000; outline-offset:3px; }
+.choice:has(input:disabled) { cursor:default; }
+.answer-feedback { margin-top:22px; padding:18px; border-radius:12px; border:1px solid; color:#164438; background:#d8eee2; animation:arrive .2s ease-out; }
+.answer-feedback.learning { background:#f5e8ce; color:#594016; }
+.answer-feedback strong { font-size:17px; }
+.answer-feedback p { margin:8px 0 0; line-height:1.6; font-size:14px; }
+.answer-feedback.success strong { display:block; animation:celebrate .3s ease-out; }
+.question-actions { justify-content:flex-end; }
+.question-note { color:#48626a; line-height:1.5; }
+.strength-card { border:1px solid #71c9bb; padding:24px; margin:22px 0; border-radius:16px; background:#183b48; }
+.strength-card span { color:#a6eddc; font-size:11px; letter-spacing:.1em; }
+.strength-card h2 { margin:12px 0; }
+.strength-card p { margin-bottom:0; color:#c2d6dc; }
+.history-skills { display:flex; }
+.login-panel>p,.demo-box div span { color:#50666d; }
+.metric-card p,.metrics span { color:#50676b; }
+.panel-kicker { color:#116d65; }
+.panel-kicker span { color:#586970; }
+.question-head { color:#4b676e; }
+@keyframes arrive { from { opacity:.65; transform:translateY(7px); } to { opacity:1; transform:none; } }
+@keyframes celebrate { 50% { transform:translateY(-3px); } }
+@media(max-width:720px) {
+ .journey-map { gap:6px; margin-bottom:16px; }
+ .journey-map li { flex-direction:column; align-items:flex-start; gap:6px; padding:10px 8px; }
+ .journey-map strong { font-size:11px; line-height:1.4; }
+ .journey-map li>span { font-size:20px; }
+ .expedition-scene { display:grid; grid-template-columns:1fr 76px; padding:0; gap:5px 12px; margin-bottom:18px; }
+ .expedition-scene .eyebrow { font-size:10px; }
+ .expedition-scene h2 { font-size:23px; margin:0; }
+ .expedition-scene p { font-size:12px; margin:0; }
+ .landscape { grid-column:2; grid-row:1/4; margin:0; align-self:center; }
+ .passport { display:none; }
+ .question-card { padding:22px 18px; }
+ .question-card h1 { font-size:24px; margin-top:22px; }
+ .question-actions .button { width:100%; min-height:50px; font-size:13px; }
+ .history-skills { flex-basis:100%; order:4; }
+ .result-hero h1 { font-size:42px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ *,*::before,*::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+}
+
+.choice.is-incorrect { background:#f6e8d3; border-color:#9b6c27; }
+.choice.is-incorrect .choice-indicator { color:#694316; }
+.choice.is-incorrect .choice-letter { background:#ead3ac; color:#694316; }
+.question-head span:last-child, .passage>span { color:#48646a; }
+.arrival-stamps { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:0 0 24px; }
+.arrival-stamps>div { border:1px dashed #7cbfb3; background:#163541; border-radius:14px; padding:20px; }
+.arrival-stamps span { font-size:30px; color:#9beed9; display:block; margin-bottom:10px; }
+.arrival-stamps strong { display:block; font-size:14px; }
+.arrival-stamps small { display:block; margin-top:7px; color:#b7d8d2; }
+.result-page .score-ring { animation:arrive .35s ease-out; }
+@media(max-width:720px) {
+ .arrival-stamps { gap:7px; }
+ .arrival-stamps>div { padding:13px 9px; }
+ .arrival-stamps strong { font-size:11px; line-height:1.5; }
+ .arrival-stamps small { font-size:10px; line-height:1.5; }
+}
+@media(prefers-reduced-motion:reduce) { .result-page .score-ring { animation:none; } }

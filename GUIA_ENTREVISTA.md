@@ -14,7 +14,7 @@ Navegador → API Node → SQLite
  resultados ← cálculo de nota con respuestas privadas
 ```
 
-- `public/app.js`: estado de pantalla, formularios, borrador en `localStorage` y render de resultados. Nunca decide si una respuesta es correcta.
+- `public/app.js`: estado de pantalla, formularios, selección temporal y recuperación desde la API y render de resultados. Nunca decide si una respuesta es correcta.
 - `server/index.js`: rutas HTTP, cookies de sesión, validación, cálculo de puntajes, feedback y registro transaccional.
 - `server/db.js`: crea tablas, un usuario de demostración y el examen inicial.
 - `server/questions.js`: banco inicial de 10 preguntas; el backend guarda la clave, pero **no la incluye en la respuesta de `/api/assessment`**.
@@ -24,8 +24,8 @@ Ejemplo: si envías 7 respuestas correctas de 10, el servidor registra 70%. Si a
 ## Demostración sugerida en 3 minutos
 
 1. Abrir `http://localhost:4173`, entrar con el usuario demo y mostrar el dashboard.
-2. Abrir el examen; señalar que los 10 checkpoints se pueden navegar y guardar como borrador.
-3. Responder algunas preguntas, finalizar, mostrar nota y desglose por habilidad.
+2. Abrir el examen; mostrar Estación Prisma, Ruta de los Ecos y Puerto de las Palabras. Cada reto se confirma en orden y se guarda en SQLite.
+3. Confirmar una respuesta correcta y una incorrecta, leer el feedback y recargar para demostrar recuperación. Completar los diez retos y mostrar nota y desglose por habilidad.
 4. Mostrar explicaciones y el historial de intentos; repetir el examen para enseñar la evolución.
 5. En DevTools, abrir Network → `/api/assessment`: se ven enunciados y opciones, pero no las respuestas correctas. Explicar que el servidor ignora `score` enviado desde el navegador.
 6. Mostrar `npm test` y el PDF de decisiones técnicas.
@@ -38,11 +38,11 @@ Mantendría el contrato de la API, migraría SQLite a PostgreSQL administrado co
 
 **2. ¿Cómo impedirías que vean respuestas correctas en el navegador?**
 
-La ruta de consulta selecciona solo `id`, `type`, `skill`, `prompt`, opciones y contexto. Las claves están en la base de datos y se consultan únicamente durante `POST /api/attempts`. Después de enviar sí se revela la solución para enseñar; en un examen de alta integridad limitaría este desglose hasta cerrar la convocatoria y usaría un banco rotativo de preguntas.
+La ruta de consulta selecciona solo `id`, `type`, `skill`, `prompt`, opciones y contexto. Las claves están en la base de datos y se consultan únicamente durante `POST /api/expedition/:id/answers`. Después de confirmar se revela únicamente la solución de esa pregunta para enseñar; en un examen de alta integridad limitaría este desglose hasta cerrar la convocatoria y usaría un banco rotativo de preguntas.
 
 **3. ¿Dónde guardarías progreso e intentos?**
 
-En `attempts` guardo fecha, usuario, evaluación, porcentaje y desglose; en `attempt_answers`, cada respuesta y si acertó. El progreso se calcula consultando intentos del usuario en orden descendente; una tabla de resumen o vistas materializadas puede añadirse para analítica intensiva.
+En `expeditions` guardo el intento abierto y en `expedition_answers` cada confirmación y su explicación. Al terminar, en `attempts` guardo fecha, usuario, evaluación, porcentaje y desglose; en `attempt_answers`, cada respuesta y si acertó. El progreso se calcula consultando intentos del usuario en orden descendente; una tabla de resumen o vistas materializadas puede añadirse para analítica intensiva.
 
 **4. ¿Cómo incluirías Pre-Beginner, A1, A2, B1, B2 y C1?**
 
@@ -58,19 +58,19 @@ Hoy no hay LLM: `feedbackFor()` genera texto por reglas. Para integrar IA defini
 
 **7. ¿Qué pasa si se pierde la conexión?**
 
-El formulario guarda borrador en `localStorage` después de cada respuesta, recuperable en el mismo navegador. Si se corta durante el envío, el usuario ve el error y puede reintentar; existe riesgo de doble intento si el servidor guardó la nota pero la respuesta se perdió. Resolvería eso con una clave idempotente única en cada intento y sincronización de borradores cuando vuelva la conexión.
+Las respuestas confirmadas viven en SQLite. Al recargar o reiniciar el servidor se recuperan mediante GET /api/expedition. Si se pierde la respuesta de red, repetir la misma confirmación devuelve el progreso sin duplicar puntos ni intentos. Cambiar una respuesta confirmada se rechaza. La selección aún no confirmada vive solo en memoria; no hay modo sin conexión.
 
 **8. ¿Cómo evitas que modifiquen la puntuación?**
 
-El backend no lee `score` del cuerpo de la solicitud. Calcula aciertos contra las claves guardadas en SQLite, dentro de una transacción que guarda intento y respuestas. La prueba integrada envía `score:100` con respuestas vacías y comprueba que el resultado real sea 0%.
+El backend no lee `score` del cuerpo de la solicitud. Calcula aciertos contra las claves guardadas en SQLite, dentro de una transacción que guarda intento y respuestas. La prueba integrada envía `score:100` con respuestas incorrectas y comprueba que el resultado real sea 0%.
 
 **9. ¿Qué pruebas priorizarías?**
 
-Primero seguridad de acceso, que el examen público no filtre claves, cálculo correcto por habilidad y propiedad de intentos. Después recuperación de conexión, accesibilidad de teclado, responsive y pruebas de carga para los puntos críticos. La prueba actual cubre el flujo integrado más importante; faltan pruebas de autorización entre varios usuarios porque solo hay uno demo.
+Primero seguridad de acceso, que el examen público no filtre claves, cálculo correcto por habilidad y propiedad de intentos. Después recuperación de conexión, accesibilidad de teclado, responsive y pruebas de carga para los puntos críticos. Las pruebas actuales incluyen aislamiento entre dos usuarios, orden, duplicados, recuperación tras reiniciar, notas 0/90/100 y rollback si falla la escritura del resultado. La interfaz se recorrió en navegador móvil y escritorio; falta una auditoría con lector de pantalla y dispositivos físicos.
 
 **10. ¿Qué harías durante tres meses?**
 
-Mes 1: entrevistas con estudiantes/profesores, diseño curricular, autenticación real, versiones de examen, accesibilidad y CI. Mes 2: PostgreSQL, roles, editor de preguntas, guardado sincronizado e idempotencia. Mes 3: observabilidad, pruebas de carga y seguridad, piloto, métricas de aprendizaje e integración de IA con consentimiento y control de costes. Dejaría certificados y speaking automático para una fase posterior si el piloto confirma valor.
+Mes 1: entrevistas con estudiantes/profesores, diseño curricular, autenticación real, versiones de examen, accesibilidad y CI. Mes 2: PostgreSQL, roles, editor de preguntas, versionado de contenido y sincronización entre instancias. Mes 3: observabilidad, pruebas de carga y seguridad, piloto, métricas de aprendizaje e integración de IA con consentimiento y control de costes. Dejaría certificados y speaking automático para una fase posterior si el piloto confirma valor.
 
 ## Preguntas que te pueden hacer sobre IA
 
@@ -87,4 +87,4 @@ Mes 1: entrevistas con estudiantes/profesores, diseño curricular, autenticació
 
 ## Límites que conviene reconocer sin rodeos
 
-La demo tiene una sola cuenta, una evaluación A2 y un coach de reglas. El borrador solo existe en el dispositivo, el límite de login está en memoria de una instancia y SQLite no es la base elegida para 100.000 usuarios. El prototipo demuestra el recorrido principal y deja claro qué reforzar antes de producción.
+La demo tiene una sola cuenta, una evaluación A2 y un coach de reglas. La selección sin confirmar solo existe en memoria; las confirmaciones sí persisten en SQLite. El límite de login está en memoria de una instancia y SQLite no es la base elegida para 100.000 usuarios. El prototipo demuestra el recorrido principal y deja claro qué reforzar antes de producción.
